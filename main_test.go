@@ -1,11 +1,12 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"google.golang.org/appengine/aetest"
 )
 
 func TestGitHubStatus(t *testing.T) {
@@ -14,8 +15,14 @@ func TestGitHubStatus(t *testing.T) {
 	}))
 	defer ts.Close()
 
+	ctx, done, err := aetest.NewContext()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer done()
+
 	c := &client{rawurl: ts.URL}
-	ok, err := c.githubStatus(context.Background())
+	ok, err := c.githubStatus(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
