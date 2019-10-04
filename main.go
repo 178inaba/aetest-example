@@ -15,7 +15,8 @@ func main() {
 }
 
 func handleGitHubStatus(w http.ResponseWriter, r *http.Request) {
-	ok, err := githubStatus(appengine.NewContext(r))
+	c := newClient()
+	ok, err := c.githubStatus(appengine.NewContext(r))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -29,8 +30,16 @@ func handleGitHubStatus(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "GitHub status ng!")
 }
 
-func githubStatus(ctx context.Context) (bool, error) {
-	req, err := http.NewRequest(http.MethodGet, "https://github.com/", nil)
+type client struct {
+	rawurl string
+}
+
+func newClient() *client {
+	return &client{rawurl: "https://github.com/"}
+}
+
+func (c *client) githubStatus(ctx context.Context) (bool, error) {
+	req, err := http.NewRequest(http.MethodGet, c.rawurl, nil)
 	if err != nil {
 		return false, err
 	}
